@@ -1,0 +1,24 @@
+
+<h1>autheur : {{name |upper}} </h1>
+{% set a="&HelLo"|lower |trim("&") %}{# miniscule #}
+{{ a }}
+{# ahlann #}
+
+{% for i in 0..10 %}
+    <p>{{ i }}</p>
+{% endfor %}
+
+{% set hour=10 %}
+{% if hour < 12 %}
+<p>Bonjour ! </p>
+{% elseif hour < 18 %}
+<p>Bon après-midi!</p>
+{% else %}
+<p>Bonsoir !</p>!
+{% endif %}
+
+<a href ="{{path('app_author')}}">link1</a>
+<a href ="{{url('app_author')}}">link2</a>
+
+<img src="{{ asset('assets/images/esprit.png')}}" alt="esprit logo">
+

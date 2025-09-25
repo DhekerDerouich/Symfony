@@ -1,0 +1,13 @@
+<h1>liste</h1>
+{% for author in authors %}
+    {{author.id}};
+     <img src="{{author.picture}}" alt="{{author.username}}" width="100">
+    {{author.email}};
+    
+    {{author.nb_books}}
+
+{% endfor %}
+
+
+
+
