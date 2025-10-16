@@ -1,19 +1,19 @@
 <h1>Liste des auteurs</h1>
-
-<table >
-    <tr>
-        <th>ID</th>
-        <th>Username</th>
-        <th>Email</th>
-    </tr>
-    {% for author in list %}
-        <tr>
-            <td>{{ author.id }}</td>
-            <td>{{ author.username }}</td>
-            <td>{{ author.email }}</td>
-            <td>update, delete,details</td>
-        </tr>
-    
-        
-    {% endfor %}
+<table>
+<tr>
+  <td>Username</td>
+  <td>Email</td>
+  <td>Actions</td>
+</tr>
+{% for i in list %}
+<tr>
+ <td>{{i.username}}</td>
+ <td>{{i.email}}</td>
+ <td>
+ <a href="{{path('app_deleteAuthor',{'id':i.id})}}">Delete</a> {#or URL #}
+ <a href="{{path('app_showDetails',{'id':i.id})}}">Show</a>
+ <a href="">Update</a>
+</td>
+</tr>
+{% endfor %}
 </table>
