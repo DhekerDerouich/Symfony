@@ -1,19 +1,9 @@
-<h1>Liste des auteurs</h1>
-<table>
-<tr>
-  <td>Username</td>
-  <td>Email</td>
-  <td>Actions</td>
-</tr>
-{% for i in list %}
-<tr>
- <td>{{i.username}}</td>
- <td>{{i.email}}</td>
- <td>
- <a href="{{path('app_deleteAuthor',{'id':i.id})}}">Delete</a> {#or URL #}
- <a href="{{path('app_showDetails',{'id':i.id})}}">Show</a>
- <a href="">Update</a>
-</td>
-</tr>
-{% endfor %}
-</table>
+
+{% if author %}
+    <h1>{{ author.username }}</h1>
+    <img src="{{ author.picture }}" alt="{{ author.username }}" width="150">
+    <p>Email : {{ author.email }}</p>
+    <p>Nombre de livres : {{ author.nb_books }}</p>
+{% else %}
+    <p>Auteur introuvable</p>
+{% endif %}

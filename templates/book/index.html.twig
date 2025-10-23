@@ -1,0 +1,34 @@
+{% block title %}Book List{% endblock %}
+
+{% block body %}
+    <h1>Book List</h1>
+    <a href="{{ path('book_add') }}">Add Book</a>
+    {% for flash in app.flashes('success') %}
+        <div class="alert alert-success">{{ flash }}</div>
+    {% endfor %}
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Category</th>
+            <th>Publication Date</th>
+            <th>Actions</th>
+        </tr>
+        {% for book in books %}
+            <tr>
+                <td>{{ book.id }}</td>
+                <td>{{ book.title }}</td>
+                <td>{{ book.author.username }}</td>
+                <td>{{ book.category }}</td>
+                <td>{{ book.publicationDate|date('Y-m-d') }}</td>
+                <td>
+                    <a href="{{ path('app_book_show', {'id': book.id}) }}">Show</a>
+                    <a href="{{ path('app_book_edit', {'id': book.id}) }}">Edit</a>
+                    <a href="{{ path('app_book_delete', {'id': book.id}) }}">Delete</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    <p>Published: {{ publishedCount }} | Unpublished: {{ unpublishedCount }}</p>
+{% endblock %}

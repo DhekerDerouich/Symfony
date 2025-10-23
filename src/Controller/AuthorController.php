@@ -2,15 +2,16 @@
 
 namespace App\Controller;
 
-use App\Entity\Author;
-use App\Form\AuthorType;
-use App\Repository\AuthorRepository;
-use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Repository\AuthorRepository;
+use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\Author;
+use App\Form\AuthorType;
+use App\Repository\BookRepository;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\Request;
 
 final class AuthorController extends AbstractController
 {
@@ -21,63 +22,156 @@ final class AuthorController extends AbstractController
             'controller_name' => 'AuthorController',
         ]);
     }
+    #[Route('/auth/{name}', name: 'ShowAuthor')]
+    public function ShowAuthor($name): Response
+    {
 
-    #[Route('/show/{name}',name:'app_showAuthor')]
-    public function showAuthor($name){
-      return $this->render('author/show.html.twig'
-      ,['nom'=>$name]);
+        return $this->render('author/Show.html.twig', ['nom' => $name]);
     }
 
-    #[Route('/ShowAll',name:'app_showAll')]
-    public function showAll(AuthorRepository $repo){
-     $authors=$repo->findAll();
-     return $this->render('author/showAll.html.twig',['list'=>$authors]);
+
+
+    #[Route('/authors', name: 'app_list_authors')]
+    public function listAuthors(): Response
+    {
+        $authors = [
+            ['id' => 1, 'picture' => '/images/gettyimages-89861094.jpg', 'username' => 'Victor Hugo', 'email' => 'victor.hugo@gmail.com', 'nb_books' => 100],
+            ['id' => 2, 'picture' => '/images/images.jpg', 'username' => 'William Shakespeare', 'email' => 'william.shakespeare@gmail.com', 'nb_books' => 200],
+            ['id' => 3, 'picture' => '/images/téléchargé (2).jpg', 'username' => 'Taha Hussein', 'email' => 'taha.hussein@gmail.com', 'nb_books' => 300],
+        ];
+
+        return $this->render('author/list.html.twig', [
+            'authors' => $authors,
+        ]);
     }
 
-    #[Route('/add', name:'app_add')]
-    public function add(ManagerRegistry $doctrine){
-      $author=new Author();
-      $author->setEmail('foulen@esprit.tn');
-      $author->setUsername('foulen');
-      $em=$doctrine->getManager();
-      $em->persist($author);
-      $em->flush();
-      //return new Response("Author added suceesfully");
-      return $this->redirectToRoute('app_showAll');
+    #[Route('/author/details/{id}', name: 'app_author_details')]
+    public function authorDetails(int $id): Response
+    {
+        $authors = [
+            1 => ['id' => 1, 'picture' => '/images/Victor-Hugo.jpg', 'username' => 'Victor Hugo', 'email' => 'victor.hugo@gmail.com', 'nb_books' => 100],
+            2 => ['id' => 2, 'picture' => '/images/william-shakespeare.jpg', 'username' => 'William Shakespeare', 'email' => 'william.shakespeare@gmail.com', 'nb_books' => 200],
+            3 => ['id' => 3, 'picture' => '/images/Taha_Hussein.jpg', 'username' => 'Taha Hussein', 'email' => 'taha.hussein@gmail.com', 'nb_books' => 300],
+        ];
+
+        $author = $authors[$id] ?? null;
+
+        return $this->render('author/showAuthor.html.twig', [
+            'author' => $author,
+        ]);
     }
 
-    #[Route('/addForm',name:'app_addForm')]
-    public function addForm(Request $request, ManagerRegistry $doctrine){
-    $author=new Author();
-    $form=$this->createForm(AuthorType::class,$author);
-    $form->add('Add',SubmitType::class);
+    #[Route('/showAll', name: 'showAll')]
+    public function showAll(AuthorRepository $repo)
+    {
+        $authors = $repo->findAll();
+        return $this->render('author/showAll.html.twig', [
+            'authors' => $authors
+        ]);
+    }
+    #[Route("/add", "add")]
+    public function add(ManagerRegistry $doctrine)
+    {
+        $entityManager = $doctrine->getManager();
+        $author = new Author();
+        $author->setEmail('foulen2@esprit');
+        $author->setUsername('foulen2');
+        $entityManager->persist($author);
+        $entityManager->flush();
 
-    $form->handleRequest($request);
-    if($form->isSubmitted()){
-     $em=$doctrine->getManager();
-     $em->persist($author);
-     $em->flush();
-     return $this->redirectToRoute('app_showAll');
+        return $this->redirectToRoute('showAll');
     }
-    return $this->render('author/add.html.twig',['formulaire'=>$form->createView()]);
-    // return $this->renderForm()
+    #[Route("/delete/{id}", "delete")]
+    public function delete(ManagerRegistry $doctrine, $id, AuthorRepository $repo)
+    {
+
+        $entityManager = $doctrine->getManager();
+        $author = $repo->find($id);
+        $entityManager->remove($author);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('showAll');
     }
 
-    #[Route('/deleteAuthor/{id}',name:'app_deleteAuthor')]
-    public function deleteAuthor($id,AuthorRepository $repo, ManagerRegistry $doctrine){
-     // chercher un auteur selon son id
-     //find , findAll , findOneby 
-     $author=$repo->find($id);
-     //procéder à la suppression 
-      $em=$doctrine->getManager();
-      $em->remove($author);
-      $em->flush();// l'ajout , la suppression et la modification
-      return $this->redirectToRoute('app_showAll');
+
+    #[Route('/showdetail/{id}', name: 'showdetail')]
+
+    public function showById($id, AuthorRepository $repo)
+    {
+        $author = $repo->find($id);
+        return $this->render('/author/showDetail.html.twig', ['author' => $author]);
+    }
+    #[Route('/addForm', name: 'addform')]
+    public function addForm(Request $request, ManagerRegistry $doctrine)
+    {
+        $author = new Author();
+
+
+        $form = $this->createForm(AuthorType::class, $author);
+
+
+        $form->add('save', SubmitType::class, [
+            'label' => 'Ajouter',
+            'attr' => ['class' => 'btn btn-success mt-2']
+        ]);
+
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $em = $doctrine->getManager();
+            $em->persist($author);
+            $em->flush();
+
+            return $this->redirectToRoute('showAll');
+        }
+
+
+        return $this->render('author/add.html.twig', [
+            'formulaire' => $form->createView(),
+        ]);
+    }
+    #[Route('/edit/{id}', name: 'edit_author')]
+    public function edit($id, Request $request, ManagerRegistry $doctrine): Response
+    {
+        $em = $doctrine->getManager();
+        $author = $em->getRepository(Author::class)->find($id);
+
+
+
+
+        $form = $this->createForm(AuthorType::class, $author);
+
+
+        $form->add('save', SubmitType::class, [
+            'label' => 'Modifier',
+            'attr' => ['class' => 'btn btn-primary mt-2']
+        ]);
+
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $em->flush();
+            return $this->redirectToRoute('showAll');
+        }
+
+        return $this->render('author/edit.html.twig', [
+            'formulaire' => $form->createView(),
+            'author' => $author,
+        ]);
     }
 
-    #[Route('/showDetails/{id}',name:'app_showDetails')]
-    public function showDetails($id,AuthorRepository $repo){
-       $author=$repo->find($id);
-       return $this->render('author/showDetails.html.twig',['author'=>$author]);
+    #[Route(path: '/ShowAllAuthorQR', name: 'ShowAllAuthorQR')]
+    public function ShowAllAuthorQR(AuthorRepository $repo): Response
+    {
+        $authors = $repo->ShowAllAuthorQR();
+        return $this->render('author/showAll.html.twig', [
+            'authors' => $authors
+        ]);
     }
+
+    
 }

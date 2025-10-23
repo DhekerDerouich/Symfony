@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\AuthorRepository;
+use App\Repository\ReaderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: AuthorRepository::class)]
-class Author
+#[ORM\Entity(repositoryClass: ReaderRepository::class)]
+class Reader
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -18,15 +18,10 @@ class Author
     #[ORM\Column(length: 255)]
     private ?string $username = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $email = null;
-    #[ORM\Column(type: 'integer')]
-    private ?int $nbBooks = 0;
-
     /**
      * @var Collection<int, Book>
      */
-    #[ORM\OneToMany(targetEntity: Book::class, mappedBy: 'author')]
+    #[ORM\ManyToMany(targetEntity: Book::class, mappedBy: 'readers')]
     private Collection $books;
 
     public function __construct()
@@ -51,25 +46,10 @@ class Author
         return $this;
     }
 
-    public function getEmail(): ?string
+    public function setId(int $id): static
     {
-        return $this->email;
-    }
+        $this->id = $id;
 
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-     public function getNbBooks(): ?int
-    {
-        return $this->nbBooks;
-    }
-
-    public function setNbBooks(int $nbBooks): self
-    {
-        $this->nbBooks = $nbBooks;
         return $this;
     }
 
@@ -83,9 +63,10 @@ class Author
 
     public function addBook(Book $book): static
     {
-        if (!$this->books->contains($book)) {
+        if (!$this->books->contains($book))
+        {
             $this->books->add($book);
-            $book->setAuthor($this);
+            $book->addReader($this);
         }
 
         return $this;
@@ -93,11 +74,9 @@ class Author
 
     public function removeBook(Book $book): static
     {
-        if ($this->books->removeElement($book)) {
-            // set the owning side to null (unless already changed)
-            if ($book->getAuthor() === $this) {
-                $book->setAuthor(null);
-            }
+        if ($this->books->removeElement($book))
+        {
+            $book->removeReader($this);
         }
 
         return $this;
